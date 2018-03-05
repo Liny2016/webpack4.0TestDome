@@ -1,11 +1,11 @@
-// webpack.config.js
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const mode = process.env.NODE_ENV || 'development'
 module.exports = {
-  mode: 'development',
+  mode,
   optimization: {
         splitChunks: {//分离第三方库,避免重复打包
             chunks: 'all'
@@ -29,11 +29,18 @@ module.exports = {
       template: './src/index.html',
       title: 'webpack4'
     }), 
-    new CleanWebpackPlugin(['dist'])
+    new CleanWebpackPlugin(['dist']),
+    new ExtractTextPlugin({ filename: '[name].css', allChunks: true }), 
   ],
   module: {
     rules: [
-    { test: /\.css$/, loader: 'style-loader!css-loader' },
+     {
+      test: /\.css$/,
+      use: ExtractTextPlugin.extract({
+        fallback: 'style-loader',
+        use: 'css-loader',
+      }),
+    },
     { test: /\.(png|jpg)$/, loader: 'url-loader?limit=8192' }, // inline base64 URLs for <=8k 
     { //编译HTML中的url
         test: /\.html$/,
